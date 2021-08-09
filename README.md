@@ -18,3 +18,4 @@ For real hardware test, related intel SGX driver and hardware set-up should be f
 ```
 cargo run --target x86_64-fortanix-unknown-sgx
 ```
+The clustering output will be printed in the terminal.
