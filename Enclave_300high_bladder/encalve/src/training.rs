@@ -280,8 +280,7 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
         }
         println!("finish funetrain");
 
-        let pred_results = g.argmin(latent_dist1_t,1,false).show_with("Pred result is");
-        pred_results.eval(&[x.given(test_x_value.view()), x_count.given(test_x_count_value.view()), sf_layer.given(test_sf_layer_value.view())]);
+        output2.eval(&[x.given(test_x_value.view()), x_count.given(test_x_count_value.view()), sf_layer.given(test_sf_layer_value.view())]);
 
     });
 
