@@ -4,7 +4,7 @@ This repository is an example code for thesis project "Privacy-preserving cluste
 
 Dataset in use is Quake_10x_Bladder
 
-Pre_Processing code is written in python and can be run to generate x_matrix and x_count matrix with:
+Pre_Processing code is written in python and can be run to generate x_matrix, x_count matrix and cell_type annotation with:
 ```
 python pre_process --dataname"Quake_10x_Bladder" 
 ```
@@ -18,4 +18,4 @@ For real hardware test, related intel SGX driver and hardware set-up should be f
 ```
 cargo run --target x86_64-fortanix-unknown-sgx
 ```
-The clustering output will be printed in the terminal.
+The clustering output will be printed in the terminal. ARI results can be calculated using cell_type annotation generated before using python.
