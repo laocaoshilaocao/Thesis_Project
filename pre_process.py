@@ -113,7 +113,7 @@ def normalize(adata, copy=True, highly_genes = None, filter_min_counts=True, siz
 
 parser = argparse.ArgumentParser(description="train", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--dataname", default = "Quake_10x_Trachea", type = str)
-parser.add_argument("--highly_genes", default =400)    
+parser.add_argument("--highly_genes", default =300)    
 
 args = parser.parse_args()
 
@@ -149,8 +149,8 @@ cluster_number = int(max(Y) - min(Y) + 1)
 # count_X_test = count_X[0:100,:]
 
 
-np.savetxt("X_400high.csv", X, delimiter=",")
-np.savetxt("Count_X_400high.csv", count_X, delimiter=",")
+np.savetxt("X_300high.csv", X, delimiter=",")
+np.savetxt("Count_X_300high.csv", count_X, delimiter=",")
 np.savetxt("Size_factor.csv", size_factor, delimiter=",")
 
 np.savetxt("annotation.csv", Y, delimiter=",")
