@@ -51,7 +51,7 @@ def read_data(filename, sparsify = False, skip_exprs = False):
             exprs_handle = f["exprs"]   
             if isinstance(exprs_handle, h5py.Group):
                 mat = sp.sparse.csr_matrix((exprs_handle["data"][...], exprs_handle["indices"][...],
-                                               exprs_handle["indptr"][...]), shape = exprs_handle["shape"][...])    #稀疏矩阵压缩存储
+                                               exprs_handle["indptr"][...]), shape = exprs_handle["shape"][...])   
             else:
                 mat = exprs_handle[...].astype(np.float32)
                 if sparsify:
@@ -98,7 +98,7 @@ def normalize(adata, copy=True, highly_genes = None, filter_min_counts=True, siz
         adata.raw = adata
     if size_factors:
         sc.pp.normalize_per_cell(adata) #step 2: Normalize each cell by total counts over all genes, so that every cell has the same total count after normalization.
-        adata.obs['size_factors'] = adata.obs.n_counts / np.median(adata.obs.n_counts)  #不是非常理解
+        adata.obs['size_factors'] = adata.obs.n_counts / np.median(adata.obs.n_counts)  
     else:
         adata.obs['size_factors'] = 1.0
     if logtrans_input:
