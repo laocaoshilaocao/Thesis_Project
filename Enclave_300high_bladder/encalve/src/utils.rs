@@ -342,7 +342,7 @@ impl ag::op::Op<f64> for Max_index {
                 j = i;
             }
             i = i + 1.0;
-            if i == 3909.0          // points number
+            if i == 2500
             {
                 i = 0.0;
             }
