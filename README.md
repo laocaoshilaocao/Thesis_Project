@@ -10,6 +10,11 @@ python pre_process --dataname"Quake_10x_Bladder"
 ```
 Client code and Enclave should be run separately.
 
-For simulation test, client code and enclave code can be run directly with "cargo run"
-
-For real hardware test, related intel SGX driver and hardware set-up should be finished. Moreover, fortanix-EDP should be installed. Then. enclave code can be run with "cargo run --target x86_64-fortanix-unknown-sgx "
+For simulation test, client code and enclave code can be run directly with 
+```
+cargo run
+```
+For real hardware test, related intel SGX driver and hardware set-up should be finished. Moreover, fortanix-EDP should be installed. Then. enclave code can be run with 
+```
+cargo run --target x86_64-fortanix-unknown-sgx
+```
