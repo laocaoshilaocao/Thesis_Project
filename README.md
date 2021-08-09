@@ -1,4 +1,4 @@
-# Thesis_Project
+# Privacy-preserving clustering of single-cell RNA-seq data in Intel SGX
 
 This repository is an example code for thesis project "Privacy-preserving clustering of single-cell RNA-seq data in Intel SGX"
 
