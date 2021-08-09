@@ -97,6 +97,7 @@ fn main() {
                 let x_count_f64 = inputs_countx.mapv(move |a| a as f64);
                 training(x_f64, x_count_f64);
 
+                break;
 
             }
             Err(e) => {
