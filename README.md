@@ -4,7 +4,7 @@ This repository is an example code for thesis project "Privacy-preserving cluste
 
 Dataset in use is Quake_10x_Bladder
 
-Pre_Processing code is written in python and can be run with 
+Pre_Processing code is written in python and can be run with to generate x_matrix and x_count matrix
 ```
 python pre_process --dataname"Quake_10x_Bladder" 
 ```
