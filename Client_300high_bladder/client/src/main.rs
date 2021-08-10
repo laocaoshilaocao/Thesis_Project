@@ -1,6 +1,6 @@
-use std::net::{TcpStream};
-use std::io::Write;
-use byteorder::{WriteBytesExt, NetworkEndian};
+use std::net::{TcpStream,TcpListener};
+use std::io::{Write, Read};
+use byteorder::{WriteBytesExt, NetworkEndian, ReadBytesExt};
 use std::error::Error;
 use std::fs::File;
 
@@ -13,8 +13,9 @@ use ndarray::{Array2, Zip};
 
 use csv::ReaderBuilder;
 use ndarray_csv::Array2Reader;
+use std::io::Cursor;
 
-
+use std::fs;
 
 type Aes128Cbc = Cbc<Aes128, Pkcs7>;
 
@@ -70,6 +71,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("ciphertext size is {:?}",ciphertext.len());
 
 
+    let mut receive = vec![0u8; 6000016];
+
+    let mut params = Vec::new();
+
     match TcpStream::connect("localhost:3333") {
         Ok(mut stream) => {
             println!("Successfully connected to server in port 3333");
@@ -78,6 +83,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             println!("Sent Hello, awaiting reply...");
 
+            stream.read(&mut receive).unwrap();
+
+
+            let mut rdr = Cursor::new(&receive);
+
+            for _i in 0..2500{
+
+                let package_length = rdr.read_f64::<NetworkEndian>().unwrap();
+                
+                params.push(package_length);
+            
+                }
+
         },
         Err(e) => {
             println!("Failed to connect: {}", e);
@@ -85,5 +103,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     println!("Terminated.");
 
+
+    let mut file = File::create("result.txt")?;
+    writeln!(file, "{:?}", params);
+
     Ok(())
 }
+
