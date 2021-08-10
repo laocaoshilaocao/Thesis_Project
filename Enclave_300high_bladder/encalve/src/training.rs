@@ -1,9 +1,7 @@
-
 use std;
 use autograd as ag;
 use ndarray::{Array, array, Array1, Array2,arr1};
 use ndarray::s;
-
 
 use ag::Graph;
 use ag::tensor::Variable;
@@ -13,16 +11,11 @@ use ag::tensor::Constant;
 use ag::rand::seq::SliceRandom;
 use std::sync::{Arc, RwLock};
 
-
 type Tensor<'graph> = ag::Tensor<'graph, f64>;
-
 
 use crate::utils::{Dense_relu, Dense_sigmoid, Dense_DisAct, Dense_MeanAct, Dense, assign, zerodiag, create_from_index, create_from_index_rhs, max_index};
 
 use crate::loss_functions::{zinb, nb, cal_dist, cal_latent, target_dis};
-
-
-
 
 fn inputs(g: &Graph<f64>, dim: Array1<usize>) -> (Tensor, Tensor, Tensor){
 
@@ -38,7 +31,7 @@ fn get_permutation(size: usize) -> Vec<usize> {
     perm
 }
 
-pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
+pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) -> ArrayD::<f64>{
 
     //create autoencoder
 
@@ -55,7 +48,6 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
     let batch_size = 25isize;
 
     let num_batch = cell_number / batch_size as usize;
-
 
     let rng = ag::ndarray_ext::ArrayRng::<f64>::default();
 
@@ -76,12 +68,11 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
     let m_initial: Array2<f64> = Array::ones((1,cell_number));
     let means: Arc<RwLock<ag::NdArray<f64>>> = into_shared(m_initial);
 
+    let mut result = ArrayD::<f64>::zeros(IxDyn(&[2500]));
 
     ag::with(|g| {
         
-
-
-        let clusters = g.variable(clusters.clone());            //clusters.clone());
+        let clusters = g.variable(clusters.clone());            
 
         let w1 = g.variable(w1.clone());  // batch size, dim[1]
         let w2 = g.variable(w2.clone());
@@ -105,10 +96,6 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
         .collect::<Vec<_>>();
         let state_total = adam::AdamState::new(param_arrays_2.as_slice());
 
-
-
-    
-
         let (sf_layer, x, x_count) = inputs(g, dim);
 
         let z1 =  Dense_relu(x, w1);
@@ -118,15 +105,12 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
 
         let  latent_q_t = target_dis(latent_p_t, batch_size as usize);
 
-
         let latent_p_n = latent_p_t + zerodiag(&num_t, g);
         let latent_q_n = latent_q_t + zerodiag(&num_t, g);
-
 
         let (latent_dist1_t, latent_dist2_t) = cal_dist(latent, clusters, cluster_num, batch_size as usize);
 
         let z3_decoder = Dense_relu(latent, w3);
-
 
         //ZINB situation
         let pi = Dense_sigmoid(z3_decoder, w6);
@@ -134,12 +118,9 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
         let mean = Dense_MeanAct(z3_decoder, w8);
         let output = mean * g.matmul(sf_layer, g.ones(&[1, 300])); //是直接填写的 &[1, 500]    [1, 16]
 
-
         let likelihood_loss = zinb(pi, disp, x_count, output, ridge_lambda).show_with("likelihood_loss is");
 
-
         let kmeans_loss = g.reduce_mean(g.reduce_sum(latent_dist2_t, &[1], false), &[0], false).show_with("kmeans_loss is"); 
-        
 
         //Self_training
         let cross_entropy = g.neg(g.reduce_sum(g.reduce_sum(latent_q_n * g.ln(latent_p_n), &[1], false), &[0], false));
@@ -148,13 +129,11 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
             
         let total_loss : ag::Tensor<f64> =  likelihood_loss + gamma * kl_loss + alpha * kmeans_loss; 
 
-
         // instantiate an adam optimizer with default setting.
 
         let grads_pretain = g.grad(&[&likelihood_loss], &[w1, w2, w3, w6, w7, w8]);   //w6
         let grads_train = g.grad(&[total_loss], &[clusters, w1, w2, w3, w6, w7, w8]); 
 
-        
         let total_update_ops_2: &[ag::Tensor<f64>] = &adam::Adam::default().compute_updates(&[clusters, w1, w2, w3, w6, w7, w8], &grads_train, &state_total, &g);
 
         let test_x_value: Array2<f64> = x_value;
@@ -181,9 +160,7 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
 
         println!("finish pre-train");
 
-
         //kmeans++ for latent space
-
         //generate initial centroids
         let c1 = (g.gather(latent, g.constant(array![0.0]), 0) + g.gather(latent, g.constant(array![1.0]), 0)) / 2.0;
         let c2 = (g.gather(latent, g.constant(array![3.0]), 0) + g.gather(latent, g.constant(array![6.0]), 0))/ 2.0;
@@ -250,7 +227,6 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
 
         let new_centroids_v = g.reduce_sum(g.gather(flag, indices, 0), &[0], false);
 
-
         let update_ops = assign(&centroids, &new_centroids_v , g);
 
         let mut j = 0;
@@ -279,10 +255,15 @@ pub fn training(x_value: Array2<f64>, x_count_value: Array2<f64>) {
             k = k + 1;
         }
         println!("finish funetrain");
+        
+        let mut y = ArrayD::<f64>::zeros(IxDyn(&[2500]));
+        let x = output2.eval(&[x.given(test_x_value.view()), x_count.given(test_x_count_value.view()), sf_layer.given(test_sf_layer_value.view())]);
 
-        output2.eval(&[x.given(test_x_value.view()), x_count.given(test_x_count_value.view()), sf_layer.given(test_sf_layer_value.view())]);
-
+        y = x;
+        result = y;
     });
+    
+    result
 
 }
 
