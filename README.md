@@ -18,4 +18,4 @@ For real hardware test, related intel SGX driver and hardware set-up should be f
 ```
 cargo run --target x86_64-fortanix-unknown-sgx
 ```
-The clustering output will be printed in the terminal. ARI results can be calculated using cell_type annotation generated before using python.
+The clustering output will be sent back and written in an txt file in client side. ARI results can be calculated using cell_type annotation generated before using python.
